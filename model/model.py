@@ -73,5 +73,4 @@ def predict_next_minute_close(MODEL_PATH, X):
     pred_scaled = model.predict(X_scaled)
     # -----------------------------
     prediction = scaler_y.inverse_transform(pred_scaled)
-    print("Prediction for next minute's closing price:", prediction)
     return prediction
