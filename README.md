@@ -1,167 +1,133 @@
-# Stock Price Predictions
+# Stock Market Next Day Closing Predictions
 
-A machine learning project for predicting stock prices using deep learning techniques. This project implements LSTM (Long Short-Term Memory) neural networks to forecast stock market trends based on historical data.
+**Project:** Predict next-day stock closing prices using historical time-series data and deep learning.
 
-## 📊 Overview
+**Author:** Aspiring Data Scientist
 
-This project leverages historical stock market data to train predictive models that can forecast future stock prices on next minute. The implementation uses deep learning algorithms, specifically LSTM networks, which are well-suited for time series forecasting tasks due to their ability to capture long-term dependencies in sequential data.
+## Table of Contents
+- **About:** Project summary and goals
+- **Repository Structure:** Key files and folders
+- **Setup:** Install dependencies
+- **Data:** Source and preprocessing
+- **Training:** How to train the model
+- **Prediction / Inference:** Run the model to predict next-day closing
+- **Model:** Saved artifacts and code
+- **Evaluation:** Metrics and how to reproduce results
+- **Next Steps:** Ideas to improve the project
+- **Contact:** How to reach me
 
-## ✨ Features
+## About
+This project demonstrates a pipeline for predicting the next-day closing price of a stock using historical data and machine learning. It includes data fetching and cleaning, windowed time-series preparation, model training, and a simple prediction interface.
 
-- **Real-time Data Fetching**: Automatically retrieves historical stock data using financial APIs
-- **Data Preprocessing**: Comprehensive data cleaning, normalization, and feature engineering
-- **LSTM Model Training**: Deep learning model specifically designed for time series prediction
-- **Price Forecasting**: Predicts future stock prices based on historical patterns
-- **Model Evaluation**: Performance metrics including MSE, RMSE
-- **Modular Architecture**: Clean separation of concerns with dedicated modules for data, training, and prediction
+The goal is to explore time-series forecasting with practical tools and produce a reproducible workflow you can iterate on as you grow your data science skills.
 
-## 🏗️ Project Structure
+## Repository Structure
+- **app.py** — Application entry (serving/prediction interface)
+- **run.py** — Alternative runner for the app (check which one your project uses)
+- **trainingmodel.py** — Utilities for building/training the model
+- **predictmodel.py** — Utilities for loading the model and running predictions
+- **training/** — Training scripts (main training logic)
+- **predict/** — Prediction scripts / CLI
+- **data/** — Data fetching, cleaning and windowing helpers and CSVs
+  - `stock_long_data.csv`, `stock_one_minute.csv` — example datasets
+- **model/** — Trained model artifact (`model.keras`) and model helper code
+- **templates/** — HTML templates for the app (e.g., `index.html`)
 
+## Setup
+1. Create a Python virtual environment (recommended):
+
+```bash
+python -m venv venv
+venv\Scripts\activate
 ```
-Stock-Price-Predictions/
-│
-├── data/                   # Data storage and preprocessing scripts
-│   ├── raw/               # Raw data files
-│   └── processed/         # Processed data ready for training
-│
-├── model/                 # Trained model storage
-│   └── saved_models/      # Serialized model files
-│
-├── predict/               # Prediction scripts and utilities
-│   └── predictor.py       # Main prediction logic
-│
-├── training/              # Model training scripts
-│   ├── train_model.py     # Training pipeline
-│   └── model_config.py    # Model architecture and hyperparameters
-│
-├── run.py                 # Main execution script
-├── requirements.txt       # Project dependencies
-└── README.md             # Project documentation
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
 
-## 🚀 Getting Started
+3. Inspect `requirements.txt` and install any additional packages if needed.
 
-### Prerequisites
+## Data
+- Raw CSV files are in the `data/` folder.
+- Preprocessing steps (see `data/clean.py` and `data/window.py`) typically include:
+  - handling missing values
+  - resampling or aggregating (if using high-frequency data)
+  - feature engineering (returns, moving averages, volume features)
+  - creating sliding windows / sequences for supervised learning
 
-- Python 3.8 or higher
-- pip package manager
-- Virtual environment (recommended)
+To fetch or refresh data, run the ingestion/fetch script in `data/` if provided.
 
-### Installation
+## Training
+Basic training steps:
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/mitulkhemani2005/Stock-Price-Predictions.git
-   cd Stock-Price-Predictions
-   ```
+```bash
+# from repo root
+python training/training.py
+```
 
-2. **Create a virtual environment** (recommended)
-   ```bash
-   python -m venv venv
-   
-   # On Windows
-   venv\Scripts\activate
-   
-   # On macOS/Linux
-   source venv/bin/activate
-   ```
+Notes:
+- The training script will read prepared data from `data/`, build a model using code in `trainingmodel.py` / `model/`, and save the best model to `model/model.keras`.
+- Check `training/training.py` for hyperparameters (sequence length, epochs, batch size, optimizer).
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Prediction / Inference
+You can run the prediction script or use the app to get next-day closing predictions.
 
-## 📖 Usage
+Command-line prediction (example):
 
-### Training and Prediction from the Model
+```bash
+python predict/predict.py
+# or
+python predictmodel.py
+```
+
+To run the web app (if implemented):
 
 ```bash
 python run.py
+# or
+python app.py
 ```
 
-## 🔧 Configuration
-- **Share Name**: Number of Market Share could be changed
-- **LSTM layers**: Number and size of LSTM units
-- **Dropout rate**: Regularization parameter
-- **Learning rate**: Optimizer learning rate
-- **Sequence length**: Number of historical days used for prediction
+The prediction utilities load `model/model.keras` by default — confirm paths in `predictmodel.py` / `predict/predict.py`.
 
-## 📊 Model Architecture
+## Model
+- Model file: `model/model.keras`
+- Model code and wrappers: `model/model.py`, `trainingmodel.py`, and `predictmodel.py`.
 
-The project implements a deep LSTM neural network with the following architecture:
+Tips:
+- Version your model artifacts (e.g., include timestamped filenames) when experimenting.
+- Save training logs (e.g., TensorBoard) to inspect learning curves.
 
-1. Input layer with sequence data
-2. Multiple LSTM layers with dropout for regularization
-3. Dense layers for feature extraction
-4. Output layer for price prediction
+## Evaluation
+- Use appropriate regression/time-series metrics such as MAE, RMSE, MAPE.
+- Evaluate on a hold-out test period that reflects the realistic forecasting horizon.
+- Include baseline comparisons (e.g., naive persistence, moving average) to measure real gains.
 
-## 📈 Performance Metrics
+## Next Steps / Improvements
+- Add more features (technical indicators, macro variables, news sentiment).
+- Try different model architectures (LSTM, GRU, Temporal Convolutional Networks, Transformers).
+- Implement backtesting to simulate trading strategies using model outputs.
+- Add CI to reproduce training and evaluation reliably.
 
-The model is evaluated using:
+## Contributing
+Feel free to open issues or pull requests. Useful contributions include:
+- improving data cleaning and feature engineering
+- adding unit tests for data pipelines
+- improving documentation and reproducibility
 
-- **Mean Squared Error (MSE)**: Measures average squared difference
-- **Root Mean Squared Error (RMSE)**: Square root of MSE for interpretability
+## License
+Include a license of your choice (e.g., MIT) or specify terms here.
 
-## 📁 Data Sources
-
-This project supports multiple data sources:
-
-- **Yahoo Finance** (yfinance library)
-
-## 🎯 Example Results
-
-```
-Stock: TITAGARH
-RMSE: 0.0224
-Loss: 5.02e-04
-
-
-## 🛠️ Technologies Used
-
-- **Python**: Core programming language
-- **TensorFlow/Keras**: Deep learning framework
-- **NumPy**: Numerical computations
-- **Pandas**: Data manipulation and analysis
-- **Scikit-learn**: Machine learning utilities
-- **yfinance**: Stock data retrieval
-
-## ⚠️ Disclaimer
-
-**This project is for educational and research purposes only.** 
-
-Stock market prediction is inherently uncertain and involves significant risk. The predictions made by this model should not be used as the sole basis for investment decisions. Always conduct thorough research and consult with financial advisors before making investment choices.
-
-Past performance does not guarantee future results.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Mitul Khemani**
-- GitHub: [@mitulkhemani2005](https://github.com/mitulkhemani2005)
-
-## 🙏 Acknowledgments
-
-- Thanks to the open-source community for the amazing libraries
-- Financial data providers for making historical data accessible
-- Research papers on LSTM applications in financial forecasting
-
-## 📞 Contact
-
-For questions or feedback, please open an issue on GitHub or reach out through the repository.
+## Contact
+If you'd like feedback or collaboration, reach out with your preferred contact details.
 
 ---
 
-**Note**: Remember to star ⭐ this repository if you find it helpful!
+If you'd like, I can also:
+- run the project to verify the app and training scripts
+- add a minimal example notebook showing preprocessing → training → prediction
+- create a requirements snapshot with exact package versions
+
+Tell me which you'd like next.
