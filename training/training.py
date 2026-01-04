@@ -20,6 +20,3 @@ X_input, y_input = create_sliding_windows(DATA_PATH, WINDOW_SIZE)
 #CREATING AND TRAINING THE MODEL
 create_model(WINDOW_SIZE, MODEL_PATH)
 train_model(MODEL_PATH, X_input, y_input, epochs=50, learning_rate=0.0025)
-
-#PREDICTING THE NEXT MINUTE CLOSE PRICE USING THE LAST WINDOW FROM THE RECENT FETCHED DATASET
-# predict_next_minute_close(MODEL_PATH, X_input[0].reshape(1, WINDOW_SIZE, 4))
