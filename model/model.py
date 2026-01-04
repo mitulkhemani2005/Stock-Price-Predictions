@@ -26,14 +26,15 @@ def create_model(WINDOW_SIZE, MODEL_PATH):
 def train_model(MODEL_PATH, X_input, y_input, epochs=50, learning_rate=0.001):
     model = load_model(MODEL_PATH)
     model.compile(loss=MeanSquaredError(), optimizer=Adam(learning_rate=learning_rate), metrics=[RootMeanSquaredError()])
-    model.fit(X_input, y_input, epochs=epochs)
-    try:
-        model.save(MODEL_PATH)
-        print("Model trained and saved successfully")
-        return MODEL_PATH
-    except:
-        print("Error in saving the trained model")
-        return False
+    checkpoint = ModelCheckpoint(
+        MODEL_PATH,
+        monitor="loss",
+        save_best_only=True,
+        verbose=1
+    )
+    model.fit(X_input, y_input, epochs=epochs, callbacks=[checkpoint])
+    print("Model trained and saved successfully")
+    return MODEL_PATH
 
 def predict_next_minute_close(MODEL_PATH, X):
     model = load_model(MODEL_PATH)

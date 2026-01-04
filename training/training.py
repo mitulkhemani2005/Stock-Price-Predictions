@@ -2,13 +2,13 @@ from data.fetch import fetch_long_term_data
 from data.clean import clean_data
 from data.window import create_sliding_windows
 from model.model import create_model, train_model, predict_next_minute_close
-import numpy as np
+
 DATA_PATH = "data/stock_long_data.csv"
 MODEL_PATH = "model/model.keras"
-STOCK = "NHPC.NS"
+STOCK = "TMCV.NS"
 DAYS = "7d"
 INTERVAL = "1m"
-WINDOW_SIZE = 5
+WINDOW_SIZE = 10
 
 #FETCH AND CLEAN LONG TERM DATASET
 fetch_long_term_data(STOCK=STOCK, days=DAYS, interval=INTERVAL, DATA_PATH=DATA_PATH)
@@ -19,5 +19,7 @@ X_input, y_input = create_sliding_windows(DATA_PATH, WINDOW_SIZE)
 
 #CREATING AND TRAINING THE MODEL
 create_model(WINDOW_SIZE, MODEL_PATH)
-train_model(MODEL_PATH, X_input, y_input, epochs=50, learning_rate=0.005)
-predict_next_minute_close(MODEL_PATH, X_input[-1].reshape(1, WINDOW_SIZE, 4))
+train_model(MODEL_PATH, X_input, y_input, epochs=50, learning_rate=0.0025)
+
+#PREDICTING THE NEXT MINUTE CLOSE PRICE USING THE LAST WINDOW FROM THE RECENT FETCHED DATASET
+# predict_next_minute_close(MODEL_PATH, X_input[0].reshape(1, WINDOW_SIZE, 4))
