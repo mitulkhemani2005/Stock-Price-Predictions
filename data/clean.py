@@ -8,5 +8,10 @@ def clean_data(PATH):
     df['Date_Time'] = pd.to_datetime(df['Date_Time'])
     df.sort_values('Date_Time', inplace=True)
     df.reset_index(drop = True, inplace=True)
-    df.to_csv(PATH, index=False)
-    return PATH
+    try:
+        df.to_csv(PATH, index=False)
+        print("Data cleaned and saved successfully")
+        return True
+    except:
+        print("Error in saving the cleaned data")
+        return False
