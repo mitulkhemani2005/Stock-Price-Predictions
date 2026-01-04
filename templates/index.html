@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Price Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 30px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .card {
+            width: 300px;
+            height: 200px;
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        .price {
+            font-size: 48px;
+            margin-top: 40px;
+            color: #38bdf8;
+        }
+
+        button {
+            margin-top: 40px;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #22c55e;
+            color: black;
+        }
+
+        #time {
+            margin-top: 20px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Real-Time Stock Price Prediction</h1>
+
+<button onclick="trainModel()">Train Model</button>
+
+<div class="container">
+    <div class="card">
+        <h2>Current Price</h2>
+        <div class="price" id="current">0.00</div>
+    </div>
+
+    <div class="card">
+        <h2>Predicted Price</h2>
+        <div class="price" id="predicted">0.00</div>
+    </div>
+</div>
+
+<div id="time"></div>
+
+<script>
+    function updatePrices() {
+        fetch("/prices")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("current").innerText = data.current_price.toFixed(2);
+                document.getElementById("predicted").innerText = data.predicted_price.toFixed(2);
+                document.getElementById("time").innerText = "Last update: " + data.timestamp;
+            });
+    }
+
+    function trainModel() {
+        fetch("/train", { method: "POST" })
+            .then(res => res.json())
+            .then(data => alert(data.status));
+    }
+
+    updatePrices();
+    setInterval(updatePrices, 60000); // every 1 minute
+</script>
+
+</body>
+</html>

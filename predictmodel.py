@@ -8,4 +8,5 @@ PREDICT_DAY = "1d"
 INTERVAL = "1m"
 WINDOW_SIZE = 10
 
-predict_model(STOCK, PREDICT_DAY, INTERVAL, WINDOW_SIZE, DATA_PATH, MODEL_PATH)
+predicted_price = predict_model(STOCK, PREDICT_DAY, INTERVAL, WINDOW_SIZE, DATA_PATH, MODEL_PATH)
+print(predicted_price)

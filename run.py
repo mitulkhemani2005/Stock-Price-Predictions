@@ -4,7 +4,7 @@ from predict.predict import predict_model
 DATA_PATH = "data/stock_long_data.csv"
 SHORT_DATA_PATH = "data/stock_one_minute.csv"
 MODEL_PATH = "model/model.keras"
-STOCK = "GOLDBEES.NS"
+STOCK = "TITAGARH.NS"
 DAYS = "7d"
 PREDICT_DAY = "1d"
 INTERVAL = "1m"
