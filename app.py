@@ -1,19 +1,38 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, jsonify, render_template
 import pandas as pd
-import subprocess
 import time
+import os
+import threading
 import re
+
+from training.training import training_model
+from predict.predict import predict_model
+
+# -------------------------
+# CONFIG
+# -------------------------
+
+DATA_PATH = "data/stock_long_data.csv"
+SHORT_DATA_PATH = "data/stock_one_minute.csv"
+MODEL_PATH = "model/model.keras"
+
+STOCK = "TITAGARH.NS"
+DAYS = "7d"
+PREDICT_DAY = "1d"
+INTERVAL = "1m"
+WINDOW_SIZE = 10
+EPOCHS = 50
+LEARNING_RATE = 0.0025
+
+CSV_PATH = SHORT_DATA_PATH
 
 app = Flask(__name__)
 
-CSV_PATH = "data/stock_one_minute.csv"
-
-
 # -------------------------
-# Helper functions
+# HELPERS
 # -------------------------
 
-def get_current_price():
+def get_current_price() -> float:
     try:
         df = pd.read_csv(CSV_PATH)
         if df.empty:
@@ -27,41 +46,38 @@ def get_current_price():
         return 0.0
 
 
-def extract_float(text):
+def extract_float_from_string(text: str) -> float:
     """
-    Extracts the LAST floating number from any string.
-    Works for:
-    - 123.45
-    - [123.45]
-    - [[123.45]]
-    - tensor(123.45)
+    Extracts the LAST numeric value from any string.
+    Handles:
+    - '123.45'
+    - '[123.45]'
+    - 'tensor(123.45)'
+    - 'Prediction: 123.45'
     """
     numbers = re.findall(r"[-+]?\d*\.\d+|\d+", text)
     return float(numbers[-1]) if numbers else 0.0
 
 
-def get_predicted_price():
+def _train_background():
     try:
-        result = subprocess.run(
-            ["python", "predictmodel.py"],
-            capture_output=True,
-            text=True
+        training_model(
+            DATA_PATH,
+            MODEL_PATH,
+            STOCK,
+            DAYS,
+            INTERVAL,
+            WINDOW_SIZE,
+            EPOCHS,
+            LEARNING_RATE
         )
-
-        if result.returncode != 0:
-            print("Prediction stderr:", result.stderr)
-            return 0.0
-
-        output = result.stdout.strip()
-        return extract_float(output)
-
+        print("Training completed successfully")
     except Exception as e:
-        print("Prediction Exception:", e)
-        return 0.0
+        print("Training failed:", e)
 
 
 # -------------------------
-# Routes
+# ROUTES
 # -------------------------
 
 @app.route("/")
@@ -70,22 +86,45 @@ def index():
 
 
 @app.route("/train", methods=["POST"])
-def train_model():
-    try:
-        subprocess.Popen(["python", "trainingmodel.py"])
-        return jsonify({"status": "Training started"})
-    except Exception as e:
-        return jsonify({"status": "Training failed", "error": str(e)})
+def train():
+    thread = threading.Thread(target=_train_background, daemon=True)
+    thread.start()
+
+    return jsonify({
+        "status": "started",
+        "message": "Model training started in background"
+    })
 
 
 @app.route("/prices")
 def prices():
+    try:
+        raw_prediction = predict_model(
+            STOCK,
+            PREDICT_DAY,
+            INTERVAL,
+            WINDOW_SIZE,
+            SHORT_DATA_PATH,
+            MODEL_PATH
+        )
+
+        predicted_price = extract_float_from_string(str(raw_prediction))
+
+    except Exception as e:
+        print("Prediction error:", e)
+        predicted_price = 0.0
+
     return jsonify({
         "current_price": get_current_price(),
-        "predicted_price": get_predicted_price(),
+        "predicted_price": predicted_price,
         "timestamp": time.strftime("%H:%M:%S")
     })
 
 
+# -------------------------
+# ENTRY POINT (RENDER)
+# -------------------------
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)

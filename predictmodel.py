@@ -2,7 +2,7 @@ from predict.predict import predict_model
 
 DATA_PATH = "data/stock_one_minute.csv"
 MODEL_PATH = "model/model.keras"
-STOCK = "TITAGARH.NS"
+STOCK = "HDFCBANK.NS"
 DAYS = "7d"
 PREDICT_DAY = "1d"
 INTERVAL = "1m"
